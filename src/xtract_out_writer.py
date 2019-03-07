@@ -26,6 +26,9 @@ parser.add_argument('-t', '--incl_tech', action="store_true", dest="incl_tech", 
                     help="Optionally include technical replicates into p-value calculation")
 parser.add_argument('-nr', '--norm_replicates', action="store_true", dest="norm_replicates", default=False,
                     help="Optionally normalize replicates to their mean experimental ms1 area")
+parser.add_argument('-ne', '--norm_experiments', action="store", dest="norm_experiments", default="yes",
+                    help="Optionally select the experiment normalization method (or whether to normalize at all). "
+                         "Possible values: yes (default norm method), xt (xTract norm method), no (do not normalize)")
 args = parser.parse_args()
 
 
@@ -40,7 +43,8 @@ def main():
     df.name = os.path.basename(args.input)
     df._metadata += ['name']
     bag_cont = process_bag.BagContainer(level='uxID', df_list=[df], filter=args.filter, sel_exp=args.sel_exp,
-                                        impute_missing=args.impute, norm_reps=args.norm_replicates)
+                                        impute_missing=args.impute, norm_reps=args.norm_replicates,
+                                        norm_exps=args.norm_experiments)
     df = ll.get_xtract_df(bag_cont, incl_tech=args.incl_tech)
     print("Mean values for experiments:")
     print(df.groupby(xt_db.exp_string).mean())

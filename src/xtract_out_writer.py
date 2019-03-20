@@ -29,6 +29,9 @@ parser.add_argument('-nr', '--norm_replicates', action="store_true", dest="norm_
 parser.add_argument('-ne', '--norm_experiments', action="store", dest="norm_experiments", default="yes",
                     help="Optionally select the experiment normalization method (or whether to normalize at all). "
                          "Possible values: yes (default norm method), xt (xTract norm method), no (do not normalize)")
+parser.add_argument('-v' '--vio_list', action="store", dest='vio_list', default=['lh', 'xt'], type=str, nargs='+',
+                    help="List of input possible violation filters separated by spaces. "
+                         "Possible values: lh (light/heavy log2 ratio, xt (xTract type violations), none (no filtering")
 args = parser.parse_args()
 
 
@@ -44,7 +47,7 @@ def main():
     df._metadata += ['name']
     bag_cont = process_bag.BagContainer(level='uxID', df_list=[df], filter=args.filter, sel_exp=args.sel_exp,
                                         impute_missing=args.impute, norm_reps=args.norm_replicates,
-                                        norm_exps=args.norm_experiments)
+                                        norm_exps=args.norm_experiments, vio_list=args.vio_list)
     df = ll.get_xtract_df(bag_cont, incl_tech=args.incl_tech)
     print("Mean values for experiments:")
     print(df.groupby(xt_db.exp_string).mean())

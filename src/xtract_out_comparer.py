@@ -27,6 +27,12 @@ parser.add_argument('-t', '--incl_tech', action="store_true", dest="incl_tech", 
                     help="Optionally include technical replicates into p-value calculation")
 parser.add_argument('-nr', '--norm_replicates', action="store_true", dest="norm_replicates", default=False,
                     help="Optionally normalize replicates to their mean experimental ms1 area")
+parser.add_argument('-ne', '--norm_experiments', action="store", dest="norm_experiments", default="yes",
+                    help="Optionally select the experiment normalization method (or whether to normalize at all). "
+                         "Possible values: yes (default norm method), xt (xTract norm method), no (do not normalize)")
+parser.add_argument('-v' '--vio_list', action="store", dest='vio_list', default=['lh', 'xt'], type=str, nargs='+',
+                    help="List of input possible violation filters separated by spaces. "
+                         "Possible values: lh (light/heavy log2 ratio, xt (xTract type violations), none (no filtering")
 args = parser.parse_args()
 
 xt_db = ll.xTractDB()
@@ -76,7 +82,8 @@ def main():
             exit(1)
     if df_xtract is not None and df_list is not None:
         bag_cont = process_bag.BagContainer(level='uxID', df_list=df_list, filter=args.filter, sel_exp=args.sel_exp,
-                                            impute_missing=args.impute, norm_reps=args.norm_replicates)
+                                            impute_missing=args.impute, norm_reps=args.norm_replicates,
+                                            norm_exps=args.norm_experiments, vio_list=args.vio_list)
         df_bag = ll.get_xtract_df(bag_cont, incl_tech=args.incl_tech)
         df_bag[origin_string] = 'bag'
         df_xtract[origin_string] = 'analyzer_quant'

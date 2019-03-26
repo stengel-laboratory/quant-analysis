@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import pandas as pd
-import argparse
+import configargparse
 import os
+import logging
 from link_library.bag_container_library import process_bag
 from functools import reduce
 import link_library as ll
@@ -11,9 +12,11 @@ desc = """Kai Kammer - 2019-01-17.
 Script to write xTract like output from a bag container details file
 """
 
-parser = argparse.ArgumentParser(description=desc, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = configargparse.ArgumentParser(description=desc, formatter_class=configargparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('input', action="store",
                     help="Name of the input file")
+parser.add_argument('-c', '--config_file', required=False, is_config_file=True,
+                    help='Optionally specify a config file containing your settings')
 parser.add_argument('-o', '--outname', action="store", dest="outname", default='xtract_out_from_bagcontainer.csv',
                     help="Name for the output figure")
 parser.add_argument('-f', '--filter', action="store", dest="filter", default="",
@@ -29,13 +32,18 @@ parser.add_argument('-nr', '--norm_replicates', action="store_true", dest="norm_
 parser.add_argument('-ne', '--norm_experiments', action="store", dest="norm_experiments", default="yes",
                     help="Optionally select the experiment normalization method (or whether to normalize at all). "
                          "Possible values: yes (default norm method), xt (xTract norm method), no (do not normalize)")
-parser.add_argument('-v' '--vio_list', action="store", dest='vio_list', default=['lh', 'xt'], type=str, nargs='+',
+parser.add_argument('-v', '--vio_list', action="store", dest='vio_list', default=['lh', 'xt'], type=str, nargs='+',
                     help="List of input possible violation filters separated by spaces. "
                          "Possible values: lh (light/heavy log2 ratio, xt (xTract type violations), none (no filtering")
 parser.add_argument('-w', '--whitelist', action="store", dest="whitelist", default="",
                     help="Optionally specify a file containing allowed links (uxids), i.e. a whitelist.")
 args = parser.parse_args()
 
+
+log_file = 'xtract_out_writer.log'
+logging.basicConfig(filename=log_file,level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S:')
+print('\nParameters are written to {0}\n'.format(log_file))
+logging.info('Write out file with the following parameters \n' + parser.format_values())
 
 
 def main():
@@ -53,11 +61,12 @@ def main():
     bag_cont = process_bag.BagContainer(level='uxID', df_list=[df], filter=args.filter, sel_exp=args.sel_exp,
                                         impute_missing=args.impute, norm_reps=args.norm_replicates,
                                         norm_exps=args.norm_experiments, vio_list=args.vio_list, whitelist=df_whitelist)
-    df = ll.get_xtract_df(bag_cont, incl_tech=args.incl_tech)
+    df = ll.get_xtralct_df(bag_cont, incl_tech=args.incl_tech)
     print("Mean values for experiments:")
     print(df.groupby(xt_db.exp_string).mean())
     df.to_csv(args.outname, float_format='%.6g', index=False)
     print("Results written to {0}".format(args.outname))
+    logging.info("Results written to {0}".format(args.outname))
 
 if __name__ == "__main__":
     main()

@@ -8,18 +8,21 @@ from link_library.bag_container_library import process_bag
 from functools import reduce
 import link_library as ll
 
-desc = """Kai Kammer - 2019-01-17. 
-Script to write xTract like output from a bag container details file
+desc = """Kai Kammer - 2019-01-17.\n
+Script to write xTract like output from a bag container details file.\n
 """
 
-parser = configargparse.ArgumentParser(description=desc, formatter_class=configargparse.ArgumentDefaultsHelpFormatter)
+class Formatter(configargparse.ArgumentDefaultsHelpFormatter, configargparse.RawDescriptionHelpFormatter): pass
+parser = configargparse.ArgParser(description=desc, formatter_class=Formatter)
 parser.add_argument('input', action="store",
                     help="Name of the input file")
-parser.add_argument('-c', '--config_file', required=False, is_config_file=True,
+parser.add_argument('-cf', '--config_file', is_config_file=True,
                     help='Optionally specify a config file containing your settings')
+parser.add_argument('-cw', '--config_write', is_write_out_config_file_arg=True,
+                    help='Optionally specify a file to save your current settings to')
 parser.add_argument('-o', '--outname', action="store", dest="outname", default='xtract_out_from_bagcontainer.csv',
                     help="Name for the output figure")
-parser.add_argument('-f', '--filter', action="store", dest="filter", default="",
+parser.add_argument('-f', '--filter', action="store", dest="filter", default=None,
                     help="Optionally specify a link type to filter for. Possible values: monolink, xlink")
 parser.add_argument('-e', '--sel_exp', action="store_true", dest="sel_exp", default=False,
                     help="Optionally provide this flag to select specific experiments to plot")
@@ -35,18 +38,18 @@ parser.add_argument('-ne', '--norm_experiments', action="store", dest="norm_expe
 parser.add_argument('-v', '--vio_list', action="store", dest='vio_list', default=['lh', 'xt'], type=str, nargs='+',
                     help="List of input possible violation filters separated by spaces. "
                          "Possible values: lh (light/heavy log2 ratio, xt (xTract type violations), none (no filtering")
-parser.add_argument('-w', '--whitelist', action="store", dest="whitelist", default="",
+parser.add_argument('-w', '--whitelist', action="store", dest="whitelist", default=None,
                     help="Optionally specify a file containing allowed links (uxids), i.e. a whitelist.")
 args = parser.parse_args()
 
 
 log_file = 'xtract_out_writer.log'
 logging.basicConfig(filename=log_file,level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %H:%M:%S:')
-print('\nParameters are written to {0}\n'.format(log_file))
-logging.info('Write out file with the following parameters \n' + parser.format_values())
 
 
 def main():
+    print('\nParameters are written to {0}\n'.format(log_file))
+    logging.info('Write out file with the following parameters \n' + parser.format_values())
     xt_db = ll.xTractDB()
     df_whitelist = None
     if ".xls" in args.input:
@@ -61,7 +64,7 @@ def main():
     bag_cont = process_bag.BagContainer(level='uxID', df_list=[df], filter=args.filter, sel_exp=args.sel_exp,
                                         impute_missing=args.impute, norm_reps=args.norm_replicates,
                                         norm_exps=args.norm_experiments, vio_list=args.vio_list, whitelist=df_whitelist)
-    df = ll.get_xtralct_df(bag_cont, incl_tech=args.incl_tech)
+    df = ll.get_xtract_df(bag_cont, incl_tech=args.incl_tech)
     print("Mean values for experiments:")
     print(df.groupby(xt_db.exp_string).mean())
     df.to_csv(args.outname, float_format='%.6g', index=False)

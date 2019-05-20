@@ -23,7 +23,8 @@ parser.add_argument('-cw', '--config_write', is_write_out_config_file_arg=True,
 parser.add_argument('-o', '--outname', action="store", dest="outname", default='xtract_out_from_bagcontainer.csv',
                     help="Name for the output figure")
 parser.add_argument('-f', '--filter', action="store", dest="filter", default=None,
-                    help="Optionally specify a link type to filter for. Possible values: monolink, xlink")
+                    help="Optionally specify a link type to filter for. Possible values: monolink, xlink,"
+                         "intralink (loop link)")
 parser.add_argument('-e', '--sel_exp', action="store_true", dest="sel_exp", default=False,
                     help="Optionally provide this flag to select specific experiments to plot")
 parser.add_argument('-i', '--impute', action="store_true", dest="impute", default=False,

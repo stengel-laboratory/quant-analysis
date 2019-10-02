@@ -41,6 +41,9 @@ parser.add_argument('-v', '--vio_list', action="store", dest='vio_list', default
                          "Possible values: lh (light/heavy log2 ratio, xt (xTract type violations), none (no filtering")
 parser.add_argument('-w', '--whitelist', action="store", dest="whitelist", default=None,
                     help="Optionally specify a file containing allowed links (uxids), i.e. a whitelist.")
+parser.add_argument('-r', '--reference_exp', action="store", default=None,
+                    help="Optionally provide the name of your reference experiment here. If not provided the script"
+                         " will ask for it when it is executed")
 args = parser.parse_args()
 
 
@@ -65,7 +68,7 @@ def main():
     bag_cont = process_bag.BagContainer(level='uxID', df_list=[df], filter=args.filter, sel_exp=args.sel_exp,
                                         impute_missing=args.impute, norm_reps=args.norm_replicates,
                                         norm_exps=args.norm_experiments, vio_list=args.vio_list, whitelist=df_whitelist)
-    df = ll.get_xtract_df(bag_cont, incl_tech=args.incl_tech)
+    df = ll.get_xtract_df(bag_cont, incl_tech=args.incl_tech, exp_ref=args.reference_exp)
     print("Mean values for experiments:")
     print(df.groupby(xt_db.exp_string).mean())
     df.to_csv(args.outname, float_format='%.6g', index=False)

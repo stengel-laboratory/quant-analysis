@@ -53,6 +53,7 @@ logging.basicConfig(filename=log_file,level=logging.INFO, format='%(asctime)s %(
 
 def main():
     print('\nParameters are written to {0}\n'.format(log_file))
+    logging.info(f'Using link library version {ll.__version__}')
     logging.info('Write out file with the following parameters \n' + parser.format_values())
     xt_db = ll.xTractDB()
     df_whitelist = None
@@ -73,7 +74,7 @@ def main():
     print(df.groupby(xt_db.exp_string).mean())
     df.to_csv(args.outname, float_format='%.6g', index=False)
     print("Results written to {0}".format(args.outname))
-    logging.info("Results written to {0}".format(args.outname))
+    logging.info("Results written to {0}\n".format(args.outname))
 
 if __name__ == "__main__":
     main()

@@ -16,6 +16,7 @@ class Formatter(configargparse.ArgumentDefaultsHelpFormatter, configargparse.Raw
 parser = configargparse.ArgParser(description=desc, formatter_class=Formatter)
 parser.add_argument('input', action="store",
                     help="Name of the input file")
+parser.add_argument('-V', '--version', action='version', version='%(prog)s ' + ll.__version__)
 parser.add_argument('-cf', '--config_file', is_config_file=True,
                     help='Optionally specify a config file containing your settings')
 parser.add_argument('-cw', '--config_write', is_write_out_config_file_arg=True,
@@ -40,7 +41,7 @@ parser.add_argument('-v', '--vio_list', action="store", dest='vio_list', default
                     help="List of input possible violation filters separated by spaces. "
                          "Possible values: lh (light/heavy log2 ratio, xt (xTract type violations), none (no filtering")
 parser.add_argument('-w', '--whitelist', action="store", dest="whitelist", default=None,
-                    help="Optionally specify a file containing allowed links (uxids), i.e. a whitelist.")
+                    help="Optionally specify a whitelist. It is possible to filter on any valid column.")
 parser.add_argument('-r', '--reference_exp', action="store", default=None,
                     help="Optionally provide the name of your reference experiment here. If not provided the script"
                          " will ask for it when it is executed")

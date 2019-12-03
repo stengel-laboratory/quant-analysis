@@ -45,6 +45,10 @@ parser.add_argument('-w', '--whitelist', action="store", dest="whitelist", defau
 parser.add_argument('-r', '--reference_exp', action="store", default=None,
                     help="Optionally provide the name of your reference experiment here. If not provided the script"
                          " will ask for it when it is executed")
+parser.add_argument('-sky', '--skyline_log2', action="store_true", default=False,
+                    help="Calculate the log2ratio Skyline-like. First convert ms1 areas into log2 scale (after all sum "
+                         "operations) and then calculate the difference between experiment and reference. This means "
+                         "pvalues will also be calculated based log2 scale.")
 args = parser.parse_args()
 
 
@@ -69,7 +73,8 @@ def main():
         df_whitelist = pd.read_csv(args.whitelist, engine='python')
     bag_cont = process_bag.BagContainer(level='uxID', df_list=[df], filter=args.filter, sel_exp=args.sel_exp,
                                         impute_missing=args.impute, norm_reps=args.norm_replicates,
-                                        norm_exps=args.norm_experiments, vio_list=args.vio_list, whitelist=df_whitelist)
+                                        norm_exps=args.norm_experiments, vio_list=args.vio_list, whitelist=df_whitelist,
+                                        log2diff=args.skyline_log2)
     df = ll.get_xtract_df(bag_cont, incl_tech=args.incl_tech, exp_ref=args.reference_exp)
     print("Mean values for experiments:")
     print(df.groupby(xt_db.exp_string).mean())
